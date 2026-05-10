@@ -18,10 +18,18 @@ export class GrupoEtario {
     private rangoEdad4: Miembros;
     private rangoEdad5: Miembros;
 
+    /**
+     * Crea una instancia de un grupo etario con su distribucion de poblacion.
+     * @param rangoEdad Rango de edad del grupo [edadMinima, edadMaxima]
+     * @param cantHombres Total de hombres en este rango de edad
+     * @param cantMujeres Total de mujeres en este rango de edad
+     * @param tasaMortalidad Tasa de mortalidad anual para este grupo (valor entre 0 y 1)
+     */
     constructor(
         public rangoEdad: [number, number],
         public cantHombres: number,
-        public cantMujeres: number
+        public cantMujeres: number,
+        public tasaMortalidad: number
     ) {
         const hombresPorSubrango = cantHombres / 5;
         const mujeresPorSubrango = cantMujeres / 5;
@@ -37,6 +45,7 @@ export class GrupoEtario {
      * Avanza un anio la distribucion etaria interna del grupo.
      * Los miembros del ultimo subrango se devuelven para
      * incorporarlos al siguiente grupo etario externo.
+     * La tasa de mortalidad de este grupo es considerada en calculos posteriores.
      *
      * @param nuevosMiembros Miembros que ingresan al primer subrango del grupo.
      * @returns Miembros que salen del ultimo subrango y pasan al siguiente grupo etario.

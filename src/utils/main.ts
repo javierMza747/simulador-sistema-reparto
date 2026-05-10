@@ -14,5 +14,7 @@ export class Main {
     console.log("Grupos Etarios del Censo 2022:", gruposEtarios);
     let pais: Pais = new Pais(gruposEtarios);
     console.log("Población total del país:", pais.getTotalPopulation());
+    console.log("Cantidad de jubilados en el sistema previsional:", pais.getCantidadJubilados());
+    console.log("Cantidad de población activa potencial:", pais.getCantidadPoblacionActiva());
   }
 }
