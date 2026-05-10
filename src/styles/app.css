@@ -1,0 +1,60 @@
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, sans-serif;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+p {
+  color: #666;
+  margin: 1rem 0;
+}
+
+#app {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 4px;
+  min-height: 200px;
+}
+
+.container {
+  padding: 1rem;
+}
+
+.container h2 {
+  color: #333;
+  margin-top: 0;
+}
+
+.container p {
+  color: #666;
+}
+
+.btn {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #0052a3;
+}
+
+#output {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  color: #333;
+  font-weight: 500;
+}

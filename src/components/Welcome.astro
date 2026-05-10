@@ -1,38 +1,16 @@
 ---
+import { Main } from '../utils/main';
 import '../styles/global.css';
+import '../styles/app.css';
 ---
 
 <main>
   <h1>Simulador de Sistema Previsional</h1>
-  <p>Abre la consola del navegador (F12) para comenzar a trabajar con código.</p>
-  <div id="app"></div>
 </main>
 
 <script>
-  console.log('¡Bienvenido! Puedes trabajar aquí en la consola del navegador.');
+  import { Main } from '../utils/main';
+  
+  const app = new Main();
+  app.init();
 </script>
-
-<style>
-  main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    font-family: system-ui, sans-serif;
-  }
-  
-  h1 {
-    color: #333;
-  }
-  
-  p {
-    color: #666;
-    margin: 1rem 0;
-  }
-  
-  #app {
-    border: 1px solid #ddd;
-    padding: 1rem;
-    border-radius: 4px;
-    min-height: 200px;
-  }
-</style>
