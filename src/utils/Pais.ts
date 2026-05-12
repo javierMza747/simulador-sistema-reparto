@@ -1,6 +1,6 @@
-import type { GrupoEtario } from "./GrupoEtario";
 import { SistemaPrevisional } from "./SistemaPrevisional";
-import { gruposEtariosCenso2022, parametrosDemograficos, parametrosEconomicos } from "./datos";
+import { gruposEtariosCenso2022PorRango, obtenerClaveRangoDesdeEdad, parametrosDemograficos, parametrosEconomicos } from "./datos";
+import type { GruposEtariosPorRango } from "./datos";
 
 export class Pais {
     public sistemaPrevisional: SistemaPrevisional = new SistemaPrevisional();
@@ -13,20 +13,25 @@ export class Pais {
     // Copias locales de los parámetros demográficos
     private indiceFecundidad: number = parametrosDemograficos.indiceFecundidad;
     private edadPromedioMaternidad: number = parametrosDemograficos.edadPromedioMaternidad;
-    private gruposEtarios: GrupoEtario[] = [...gruposEtariosCenso2022];
+    private gruposEtariosPorRango: GruposEtariosPorRango = { ...gruposEtariosCenso2022PorRango };
     
     constructor() {}
 
     getTotalPopulation(): number {
-        return this.gruposEtarios.reduce((total, grupo) => total + grupo.cantHombres + grupo.cantMujeres, 0);
+        let total = 0;
+        for (const claveRango in this.gruposEtariosPorRango) {
+            const grupo = this.gruposEtariosPorRango[claveRango as keyof GruposEtariosPorRango];
+            total += grupo.cantHombres + grupo.cantMujeres;
+        }
+        return total;
     }
 
     getCantidadJubilados(): number {
-        return this.sistemaPrevisional.getCantidadJubilados(this.gruposEtarios);
+        return this.sistemaPrevisional.getCantidadJubilados(this.gruposEtariosPorRango);
     }
 
     getCantidadPoblacionActiva(): number {
-        return this.sistemaPrevisional.getCantidadPoblacionActiva(this.gruposEtarios);
+        return this.sistemaPrevisional.getCantidadPoblacionActiva(this.gruposEtariosPorRango);
     }
     
 
@@ -84,19 +89,22 @@ export class Pais {
     /**
      * Obtiene la cantidad estimada de mujeres en la edad promedio de maternidad.
      *
-     * Recorre los grupos etarios y detecta el grupo que contiene la edad definida
-     * por `edadPromedioMaternidad`. Luego toma la cantidad de mujeres del subrango
-     * asociado a esa edad dentro del grupo.
+     * Busca directamente el grupo etario correspondiente a `edadPromedioMaternidad`
+     * usando el indice por rango y calcula mujeres estimadas para esa edad,
+     * distribuyendo el total del grupo en partes iguales por cada edad.
      *
      * @returns Cantidad estimada de mujeres en edad de tener hijos segun el modelo.
      */
     obtenerMujeresEnEdadDeTenerHijos(): number {
-        let totalMujeresEnEdad = 0;
-        for (const grupo of this.gruposEtarios) {
-            if (grupo.rangoEdad[0] <= this.edadPromedioMaternidad && grupo.rangoEdad[1] >= this.edadPromedioMaternidad) {
-                totalMujeresEnEdad += grupo.rangoEdad5.cantMujeres; // Asumiendo que el último subrango es el que contiene a las mujeres en edad de maternidad
-            }
+        const claveRango = obtenerClaveRangoDesdeEdad(this.edadPromedioMaternidad);
+        const grupo = this.gruposEtariosPorRango[claveRango];
+        if (!grupo) {
+            return 0;
         }
-        return Math.ceil(totalMujeresEnEdad);
+        return Math.ceil(grupo.rangoEdad5.cantMujeres); // Asumiendo que el último subrango del grupo es el que corresponde a la edad promedio de maternidad
     }
+
+    crearHijos(): void {
+    }
+
 }

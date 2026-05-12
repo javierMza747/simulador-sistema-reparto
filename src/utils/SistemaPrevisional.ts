@@ -1,4 +1,4 @@
-import { GrupoEtario } from "./GrupoEtario";
+import type { GruposEtariosPorRango } from "./datos";
 
 export class SistemaPrevisional {
 
@@ -16,9 +16,10 @@ export class SistemaPrevisional {
      *
      * @returns Total de personas que alcanzan la edad jubilatoria.
      */
-    getCantidadJubilados(gruposEtarios: GrupoEtario[]): number {
+    getCantidadJubilados(gruposEtarios: GruposEtariosPorRango): number {
         let total: number = 0;
-        for (const grupo of gruposEtarios) {
+        for (const claveRango in gruposEtarios) {
+            const grupo = gruposEtarios[claveRango as keyof GruposEtariosPorRango];
             const [edadMinima, edadMaxima] = grupo.rangoEdad;
             if (edadMinima >= this.edadJubilatoriaMujer) {
                 total += grupo.cantMujeres;
@@ -38,10 +39,11 @@ export class SistemaPrevisional {
      *
      * @returns Total de personas consideradas parte de la poblacion activa potencial.
      */
-    getCantidadPoblacionActiva(gruposEtarios: GrupoEtario[]): number {
+    getCantidadPoblacionActiva(gruposEtarios: GruposEtariosPorRango): number {
         let total: number = 0;
 
-        for (const grupo of gruposEtarios) {
+        for (const claveRango in gruposEtarios) {
+            const grupo = gruposEtarios[claveRango as keyof GruposEtariosPorRango];
             if (grupo.rangoEdad[0] >= 18 && grupo.rangoEdad[1] <= 64) {
                 total += grupo.cantHombres;
             }
