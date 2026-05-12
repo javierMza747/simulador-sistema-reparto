@@ -12,11 +12,11 @@ export class GrupoEtario {
         rangoEdad4 = 8
         rangoEdad5 = 9
     */
-    private rangoEdad1: Miembros;
-    private rangoEdad2: Miembros;
-    private rangoEdad3: Miembros;
-    private rangoEdad4: Miembros;
-    private rangoEdad5: Miembros;
+    public rangoEdad1: Miembros;
+    public rangoEdad2: Miembros;
+    public rangoEdad3: Miembros;
+    public rangoEdad4: Miembros;
+    public rangoEdad5: Miembros;
 
     /**
      * Crea una instancia de un grupo etario con su distribucion de poblacion.

@@ -36,3 +36,8 @@ export const parametrosEconomicos = {
   jubilacionPromedio: 668_515, // Monto promedio de jubilación mensual en pesos
   tasaAporteJubilatorio: 0.11, // Porcentaje del salario que se aporta a la jubilación
 };
+
+export const parametrosDemograficos = {
+  indiceFecundidad: 1.40, // Tasa de natalidad anual (nacimientos por mujer)
+  edadPromedioMaternidad: 30, // Edad promedio en la que las mujeres tienen hijos en argentina
+}

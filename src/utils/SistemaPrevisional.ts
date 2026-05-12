@@ -6,7 +6,7 @@ export class SistemaPrevisional {
     private edadJubilatoriaHombre: number = 65;
     
     private fondoDisponible: number = 0; // Fondo total disponible para pagar jubilaciones
-    constructor(public gruposEtarios: GrupoEtario[]){}
+    constructor(){}
 
     /**
      * Calcula la cantidad total de jubilados en el sistema.
@@ -16,9 +16,9 @@ export class SistemaPrevisional {
      *
      * @returns Total de personas que alcanzan la edad jubilatoria.
      */
-    getCantidadJubilados(): number {
+    getCantidadJubilados(gruposEtarios: GrupoEtario[]): number {
         let total: number = 0;
-        for (const grupo of this.gruposEtarios) {
+        for (const grupo of gruposEtarios) {
             const [edadMinima, edadMaxima] = grupo.rangoEdad;
             if (edadMinima >= this.edadJubilatoriaMujer) {
                 total += grupo.cantMujeres;
@@ -38,10 +38,10 @@ export class SistemaPrevisional {
      *
      * @returns Total de personas consideradas parte de la poblacion activa potencial.
      */
-    getCantidadPoblacionActiva(): number {
+    getCantidadPoblacionActiva(gruposEtarios: GrupoEtario[]): number {
         let total: number = 0;
 
-        for (const grupo of this.gruposEtarios) {
+        for (const grupo of gruposEtarios) {
             if (grupo.rangoEdad[0] >= 18 && grupo.rangoEdad[1] <= 64) {
                 total += grupo.cantHombres;
             }
@@ -53,5 +53,5 @@ export class SistemaPrevisional {
 
         return total;
     }
-    
+
 }
