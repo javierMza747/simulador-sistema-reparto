@@ -17,6 +17,7 @@ export class Main {
     const poblacionTotal = this.pais.getTotalPopulation();
     const cantidadJubilados = this.pais.getCantidadJubilados();
     const poblacionActiva = this.pais.getCantidadPoblacionActiva();
+    const poblacionPorGrupo = this.pais.getPoblacionPorGrupoEtario();
 
     const seccion = document.getElementById('resumen-anual') as HTMLElement;
     seccion.hidden = false;
@@ -28,5 +29,17 @@ export class Main {
     (document.getElementById('gasto-jubilaciones') as HTMLElement).textContent = resumen.gastoJubilaciones;
     (document.getElementById('aportes-sistema') as HTMLElement).textContent = resumen.aportesDelSistema;
     (document.getElementById('balance') as HTMLElement).textContent = resumen.balance;
+
+    const cuerpoTabla = document.getElementById('tabla-grupos-etarios') as HTMLElement;
+    cuerpoTabla.innerHTML = poblacionPorGrupo
+      .map((grupo) => `
+        <tr>
+          <td>${grupo.rango}</td>
+          <td>${Math.round(grupo.cantHombres).toLocaleString('es-AR')}</td>
+          <td>${Math.round(grupo.cantMujeres).toLocaleString('es-AR')}</td>
+          <td>${Math.round(grupo.total).toLocaleString('es-AR')}</td>
+        </tr>
+      `)
+      .join('');
   }
 }

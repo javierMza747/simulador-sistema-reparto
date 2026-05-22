@@ -58,3 +58,15 @@ p {
   color: #333;
   font-weight: 500;
 }
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 1.5rem 0.5rem;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}

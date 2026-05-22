@@ -7,6 +7,13 @@ type Miembros = {
     cantMujeres: number;
 };
 
+type ResumenGrupoEtario = {
+    rango: string;
+    cantHombres: number;
+    cantMujeres: number;
+    total: number;
+};
+
 export class Pais {
     public sistemaPrevisional: SistemaPrevisional = new SistemaPrevisional();
 
@@ -24,6 +31,22 @@ export class Pais {
             total += grupo.cantHombres + grupo.cantMujeres;
         }
         return total;
+    }
+
+    getPoblacionPorGrupoEtario(): ResumenGrupoEtario[] {
+        const resumen: ResumenGrupoEtario[] = [];
+        for (const claveRango in this.gruposEtariosPorRango) {
+            const grupo = this.gruposEtariosPorRango[claveRango as keyof GruposEtariosPorRango];
+            const cantHombres = grupo.cantHombres;
+            const cantMujeres = grupo.cantMujeres;
+            resumen.push({
+                rango: claveRango,
+                cantHombres,
+                cantMujeres,
+                total: cantHombres + cantMujeres,
+            });
+        }
+        return resumen;
     }
 
     getCantidadJubilados(): number {
@@ -123,27 +146,10 @@ export class Pais {
      * Nota: No se aplican muertes en este método.
      */
     envejecerPoblacion(): void {
-        // Orden de los rangos etarios en la pirámide
-        const rangosPorOrden: Array<keyof GruposEtariosPorRango> = [
-            "0-4",
-            "5-9",
-            "10-14",
-            "15-19",
-            "20-24",
-            "25-29",
-            "30-34",
-            "35-39",
-            "40-44",
-            "45-49",
-            "50-54",
-            "55-59",
-            "60-64",
-            "65-69",
-            "70-74",
-            "75-79",
-            "80-84",
-            "85-115",
-        ];
+        // Orden de los rangos etarios en la pirámide, derivado de los datos reales.
+        const rangosPorOrden: Array<keyof GruposEtariosPorRango> = Object.entries(this.gruposEtariosPorRango)
+            .sort(([, grupoA], [, grupoB]) => grupoA.rangoEdad[0] - grupoB.rangoEdad[0])
+            .map(([claveRango]) => claveRango as keyof GruposEtariosPorRango);
         // Crear nuevos hijos para comenzar el ciclo
         let miembrosEnTransito = this.crearHijos();
         // Hacer avanzar de edad a cada grupo etario en orden
@@ -152,7 +158,7 @@ export class Pais {
             grupoEtario.eliminarMiembrosPorMortalidad(); // Aplica la tasa de mortalidad antes de avanzar de edad
             // miembrosEnTransito contiene los que pasan al siguiente rango
             miembrosEnTransito = grupoEtario.aumentarEdad(miembrosEnTransito);
-            if (grupoEtario.rangoEdad[0] === 85 && grupoEtario.rangoEdad[1] === 115) {
+            if (claveRango === rangosPorOrden[rangosPorOrden.length - 1]) {
                 // En el último grupo, los miembros que pasan al siguiente rango se acumulan en el mismo grupo (envejecen dentro del mismo rango)
                 grupoEtario.acumularMiembrosMasAncianos(miembrosEnTransito);
             }
