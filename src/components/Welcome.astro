@@ -4,8 +4,20 @@ import '../styles/global.css';
 import '../styles/app.css';
 ---
 
-<main>
+<main id="app">
   <h1>Simulador de Sistema Previsional</h1>
+  <button id="btn-avanzar-año">Avanzar año</button>
+  <section id="resumen-anual" hidden>
+    <h2 id="año-actual"></h2>
+    <ul>
+      <li>Población total: <strong id="poblacion-total"></strong></li>
+      <li>Cantidad de jubilados: <strong id="cantidad-jubilados"></strong></li>
+      <li>Población activa: <strong id="poblacion-activa"></strong></li>
+      <li>Gasto en jubilaciones: <strong id="gasto-jubilaciones"></strong></li>
+      <li>Aportes del sistema: <strong id="aportes-sistema"></strong></li>
+      <li>Balance: <strong id="balance"></strong></li>
+    </ul>
+  </section>
 </main>
 
 <script>

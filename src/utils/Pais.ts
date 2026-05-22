@@ -1,14 +1,14 @@
 import { SistemaPrevisional } from "./SistemaPrevisional";
-import { gruposEtariosCenso2022PorRango, obtenerClaveRangoDesdeEdad, parametrosDemograficos, parametrosEconomicos } from "./datos";
+import { gruposEtariosCenso2022PorRango, obtenerClaveRangoDesdeEdad, parametrosDemograficos } from "./datos";
 import type { GruposEtariosPorRango } from "./datos";
+
+type Miembros = {
+    cantHombres: number;
+    cantMujeres: number;
+};
 
 export class Pais {
     public sistemaPrevisional: SistemaPrevisional = new SistemaPrevisional();
-    // Copias locales de los parámetros económicos
-    private tasaEmpleabilidad: number = parametrosEconomicos.tasaEmpleabilidad;
-    private salarioPromedio: number = parametrosEconomicos.salarioPromedio;
-    private jubilacionPromedio: number = parametrosEconomicos.jubilacionPromedio;
-    private tasaAporteJubilatorio: number = parametrosEconomicos.tasaAporteJubilatorio;
 
     // Copias locales de los parámetros demográficos
     private indiceFecundidad: number = parametrosDemograficos.indiceFecundidad;
@@ -44,26 +44,11 @@ export class Pais {
      *          Balance negativo = déficit (más gasto que aportes)
      */
     avanzarAño(): { gastoJubilaciones: number; aportesDelSistema: number; balance: number } {
-        const cantidadJubilados = this.getCantidadJubilados();
-        const poblacionActiva = this.getCantidadPoblacionActiva();
-
-        // Gasto total en jubilaciones para todo el año (12 meses)
-        const gastoJubilacionesEnPesos = cantidadJubilados * this.jubilacionPromedio * 12;
-
-        // Aportes totales al sistema: población activa × salario × tasa aporte × tasa empleabilidad × 12 meses
-        const poblacionEmpleada = poblacionActiva * this.tasaEmpleabilidad;
-        const aportesDelSistemaEnPesos = poblacionEmpleada * this.salarioPromedio * this.tasaAporteJubilatorio * 12;
-
-        // Convertir a millones
-        const gastoJubilaciones = gastoJubilacionesEnPesos / 1_000_000;
-        const aportesDelSistema = aportesDelSistemaEnPesos / 1_000_000;
-        const balance = aportesDelSistema - gastoJubilaciones;
-
-        return {
-            gastoJubilaciones,
-            aportesDelSistema,
-            balance,
-        };
+        let resultado = this.sistemaPrevisional.calcularBalanceAnual(this.gruposEtariosPorRango);
+        this.envejecerPoblacion(); // Hace avanzar de edad a toda la población y crea nuevos hijos
+        console.log("Avanzando un año...");
+        console.log(this.gruposEtariosPorRango);
+        return resultado;
     }
 
     /**
@@ -104,7 +89,73 @@ export class Pais {
         return Math.ceil(grupo.rangoEdad5.cantMujeres); // Asumiendo que el último subrango del grupo es el que corresponde a la edad promedio de maternidad
     }
 
-    crearHijos(): void {
+
+    /**
+     * Calcula la cantidad de hijos nacidos estimada durante un año.
+     *
+     * Utiliza el índice de fecundidad y la cantidad de mujeres en edad promedio
+     * de maternidad para estimar el total de nacimientos. Los hijos se distribuyen
+     * equitativamente entre hombres y mujeres.
+     *
+     * @returns Objeto con la cantidad de hijos varones y mujeres nacidos en el año.
+     */
+    crearHijos(): Miembros {
+        const mujeresEnEdad = this.obtenerMujeresEnEdadDeTenerHijos();
+        const hijosEstimados = Math.round(mujeresEnEdad * this.indiceFecundidad);
+        // Distribuir los hijos en el grupo etario correspondiente a 0-4 años
+        const hijosPorGenero = Math.round(hijosEstimados / 2);
+        return {
+            cantHombres: hijosPorGenero,
+            cantMujeres: hijosPorGenero,
+        };
     }
 
+    /**
+     * Envejece toda la población de la pirámide etaria un año.
+     * 
+     * Crea nuevos hijos y los agrega al grupo más joven (0-4 años),
+     * luego hace avanzar de edad a todos los grupos etarios en orden:
+     * 0-4 -> 5-9 -> 10-14 -> ... -> 85-115
+     * 
+     * Utiliza el método `aumentarEdad()` de cada GrupoEtario para desplazar
+     * a los miembros de cada subrango hacia el siguiente grupo etario.
+     * 
+     * Nota: No se aplican muertes en este método.
+     */
+    envejecerPoblacion(): void {
+        // Orden de los rangos etarios en la pirámide
+        const rangosPorOrden: Array<keyof GruposEtariosPorRango> = [
+            "0-4",
+            "5-9",
+            "10-14",
+            "15-19",
+            "20-24",
+            "25-29",
+            "30-34",
+            "35-39",
+            "40-44",
+            "45-49",
+            "50-54",
+            "55-59",
+            "60-64",
+            "65-69",
+            "70-74",
+            "75-79",
+            "80-84",
+            "85-115",
+        ];
+        // Crear nuevos hijos para comenzar el ciclo
+        let miembrosEnTransito = this.crearHijos();
+        // Hacer avanzar de edad a cada grupo etario en orden
+        for (const claveRango of rangosPorOrden) {
+            const grupoEtario = this.gruposEtariosPorRango[claveRango];
+            grupoEtario.eliminarMiembrosPorMortalidad(); // Aplica la tasa de mortalidad antes de avanzar de edad
+            // miembrosEnTransito contiene los que pasan al siguiente rango
+            miembrosEnTransito = grupoEtario.aumentarEdad(miembrosEnTransito);
+            if (grupoEtario.rangoEdad[0] === 85 && grupoEtario.rangoEdad[1] === 115) {
+                // En el último grupo, los miembros que pasan al siguiente rango se acumulan en el mismo grupo (envejecen dentro del mismo rango)
+                grupoEtario.acumularMiembrosMasAncianos(miembrosEnTransito);
+            }
+        }
+    }
 }

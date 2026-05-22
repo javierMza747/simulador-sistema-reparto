@@ -68,6 +68,53 @@ export class GrupoEtario {
         return miembrosQuePasanAlSiguienteRango;
     }
 
+
+    /**
+     * Acumula miembros adicionales en el subrango más antiguo del grupo etario.
+     * 
+     * Suma los miembros nuevos al subrango de edad más avanzada (rangoEdad5),
+     * típicamente utilizado para el grupo 85-115 donde los miembros se acumulan
+     * sin ser desplazados a otro grupo superior.
+     * 
+     * También actualiza los totales del grupo después de la acumulación.
+     *
+     * @param nuevosMiembros Objeto con la cantidad de hombres y mujeres a acumular.
+     */
+    acumularMiembrosMasAncianos(nuevosMiembros: Miembros): void {
+        this.rangoEdad5.cantHombres += nuevosMiembros.cantHombres;
+        this.rangoEdad5.cantMujeres += nuevosMiembros.cantMujeres;
+        this.actualizarTotales();
+    }
+
+    /**
+     * Aplica la tasa de mortalidad del grupo a todos los subrangos etarios.
+     *
+     * Reduce la cantidad de hombres y mujeres en cada subrango (rangoEdad1 a rangoEdad5)
+     * en proporción a la `tasaMortalidad` del grupo. El resultado se redondea al entero más
+     * cercano. Actualiza los totales del grupo al finalizar.
+     *
+     * La misma tasa de mortalidad se aplica uniformemente a todos los subrangos del grupo,
+     * independientemente de la edad específica dentro del rango.
+     */
+    eliminarMiembrosPorMortalidad(): void {
+        this.rangoEdad1.cantHombres -= Math.round(this.rangoEdad1.cantHombres * this.tasaMortalidad);
+        this.rangoEdad1.cantMujeres -= Math.round(this.rangoEdad1.cantMujeres * this.tasaMortalidad);
+
+        this.rangoEdad2.cantHombres -= Math.round(this.rangoEdad2.cantHombres * this.tasaMortalidad);
+        this.rangoEdad2.cantMujeres -= Math.round(this.rangoEdad2.cantMujeres * this.tasaMortalidad);
+
+        this.rangoEdad3.cantHombres -= Math.round(this.rangoEdad3.cantHombres * this.tasaMortalidad);
+        this.rangoEdad3.cantMujeres -= Math.round(this.rangoEdad3.cantMujeres * this.tasaMortalidad);
+        
+        this.rangoEdad4.cantHombres -= Math.round(this.rangoEdad4.cantHombres * this.tasaMortalidad);
+        this.rangoEdad4.cantMujeres -= Math.round(this.rangoEdad4.cantMujeres * this.tasaMortalidad);
+
+        this.rangoEdad5.cantHombres -= Math.round(this.rangoEdad5.cantHombres * this.tasaMortalidad);
+        this.rangoEdad5.cantMujeres -= Math.round(this.rangoEdad5.cantMujeres * this.tasaMortalidad);
+        this.actualizarTotales();
+    }
+
+
     private actualizarTotales(): void {
         this.cantHombres =
             this.rangoEdad1.cantHombres +

@@ -1,11 +1,18 @@
+import { parametrosEconomicos } from "./datos";
 import type { GruposEtariosPorRango } from "./datos";
 
 export class SistemaPrevisional {
 
     private edadJubilatoriaMujer: number = 60;
     private edadJubilatoriaHombre: number = 65;
-    
+
     private fondoDisponible: number = 0; // Fondo total disponible para pagar jubilaciones
+
+    private tasaEmpleabilidad: number = parametrosEconomicos.tasaEmpleabilidad;
+    private salarioPromedio: number = parametrosEconomicos.salarioPromedio;
+    private jubilacionPromedio: number = parametrosEconomicos.jubilacionPromedio;
+    private tasaAporteJubilatorio: number = parametrosEconomicos.tasaAporteJubilatorio;
+
     constructor(){}
 
     /**
@@ -54,6 +61,35 @@ export class SistemaPrevisional {
         }
 
         return total;
+    }
+
+    /**
+     * Calcula el balance financiero anual del sistema previsional.
+     *
+     * Determina el gasto total en jubilaciones y los aportes del sistema
+     * para un período de 12 meses, en base a la población activa y jubilada.
+     *
+     * @param gruposEtarios Distribución etaria actual de la población.
+     * @returns Objeto con valores en millones de pesos: gastoJubilaciones, aportesDelSistema y balance.
+     *          Balance positivo = superávit. Balance negativo = déficit.
+     */
+    calcularBalanceAnual(gruposEtarios: GruposEtariosPorRango): { gastoJubilaciones: number; aportesDelSistema: number; balance: number } {
+        const cantidadJubilados = this.getCantidadJubilados(gruposEtarios);
+        const poblacionActiva = this.getCantidadPoblacionActiva(gruposEtarios);
+
+        // Gasto total en jubilaciones para todo el año (12 meses)
+        const gastoJubilacionesEnPesos = cantidadJubilados * this.jubilacionPromedio * 12;
+
+        // Aportes totales al sistema: población activa × salario × tasa aporte × tasa empleabilidad × 12 meses
+        const poblacionEmpleada = poblacionActiva * this.tasaEmpleabilidad;
+        const aportesDelSistemaEnPesos = poblacionEmpleada * this.salarioPromedio * this.tasaAporteJubilatorio * 12;
+
+        // Convertir a millones
+        const gastoJubilaciones = gastoJubilacionesEnPesos / 1_000_000;
+        const aportesDelSistema = aportesDelSistemaEnPesos / 1_000_000;
+        const balance = aportesDelSistema - gastoJubilaciones;
+
+        return { gastoJubilaciones, aportesDelSistema, balance };
     }
 
 }

@@ -1,23 +1,32 @@
-import  { GrupoEtario } from "./GrupoEtario";
 import { Pais } from "./Pais";
 
 export class Main {
-  private appElement: HTMLElement | null;
+  private pais: Pais = new Pais();
+  private año: number = 2022;
 
-  constructor() {
-    this.appElement = document.getElementById('app');
-  }
+  constructor() {}
 
   init() {
-    let pais: Pais = new Pais();
-    console.log("Población total del país:", pais.getTotalPopulation());
-    console.log("Cantidad de jubilados en el sistema previsional:", pais.getCantidadJubilados());
-    console.log("Cantidad de población activa potencial:", pais.getCantidadPoblacionActiva());
-    const resumenAnual = pais.obtenerResumenAnualFormateado();
-    console.log("\n--- Resumen Anual del Sistema Previsional ---");
-    console.log("Gasto en jubilaciones:", resumenAnual.gastoJubilaciones);
-    console.log("Aportes al sistema:", resumenAnual.aportesDelSistema);
-    console.log("Balance anual:", resumenAnual.balance);
-    console.log("\n muejres que van a tener hijos en el año siguiente:", pais.obtenerMujeresEnEdadDeTenerHijos());
+    const btn = document.getElementById('btn-avanzar-año');
+    btn?.addEventListener('click', () => this.avanzarAño());
+  }
+
+  private avanzarAño(): void {
+    this.año++;
+    const resumen = this.pais.obtenerResumenAnualFormateado();
+    const poblacionTotal = this.pais.getTotalPopulation();
+    const cantidadJubilados = this.pais.getCantidadJubilados();
+    const poblacionActiva = this.pais.getCantidadPoblacionActiva();
+
+    const seccion = document.getElementById('resumen-anual') as HTMLElement;
+    seccion.hidden = false;
+
+    (document.getElementById('poblacion-total') as HTMLElement).textContent = `${Math.round(poblacionTotal).toLocaleString('es-AR')} habitantes`;
+    (document.getElementById('cantidad-jubilados') as HTMLElement).textContent = `${Math.round(cantidadJubilados).toLocaleString('es-AR')} personas`;
+    (document.getElementById('poblacion-activa') as HTMLElement).textContent = `${Math.round(poblacionActiva).toLocaleString('es-AR')} personas`;
+    (document.getElementById('año-actual') as HTMLElement).textContent = `Año ${this.año}`;
+    (document.getElementById('gasto-jubilaciones') as HTMLElement).textContent = resumen.gastoJubilaciones;
+    (document.getElementById('aportes-sistema') as HTMLElement).textContent = resumen.aportesDelSistema;
+    (document.getElementById('balance') as HTMLElement).textContent = resumen.balance;
   }
 }
